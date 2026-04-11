@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon --exec node src/index.js --watch src",
-    //"start": "node src/index.js",
+    /*"start": "node src/index.js",*/
     "build": "prisma generate && tsc",
-    "start": "prisma migrate deploy && node dist/server.js"
+    "start": "prisma migrate deploy && node dist/server.js",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
