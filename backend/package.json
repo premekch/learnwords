@@ -2,9 +2,9 @@
   "name": "learnwords-backend",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon --exec node src/index.js --watch src",
-    "build": "prisma generate && tsc",
-    "start": "prisma migrate deploy && node dist/server.js",
+    "dev": "node src/index.js",
+    "build": "prisma generate",
+    "start": "prisma migrate deploy && node src/index.js",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
