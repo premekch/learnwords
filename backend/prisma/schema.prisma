@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  languagePairs LanguagePair[]
+  words         Word[]
+  wordProgress  WordProgress[]
+  studySessions StudySession[]
+  dailyStats    DailyStats[]
+
+  @@map("users")
+}
+
+model LanguagePair {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  sourceLanguage String   @map("source_language")
+  targetLanguage String   @map("target_language")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  words         Word[]
+  studySessions StudySession[]
+
+  @@unique([userId, sourceLanguage, targetLanguage])
+  @@map("language_pairs")
+}
+
+model Word {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  languagePairId String   @map("language_pair_id")
+  sourceWord     String   @map("source_word")
+  targetWord     String   @map("target_word")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  languagePair LanguagePair   @relation(fields: [languagePairId], references: [id], onDelete: Cascade)
+  progress     WordProgress[]
+
+  @@map("words")
+}
+
+// Tracks SM-2 progress per word per direction ("forward" | "backward")
+model WordProgress {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  wordId      String    @map("word_id")
+  direction   String    // "forward" (source→target) | "backward" (target→source)
+  easeFactor  Float     @default(2.5) @map("ease_factor")
+  interval    Int       @default(0)   // days until next review
+  repetitions Int       @default(0)
+  nextReview  DateTime  @default(now()) @map("next_review")
+  lastReview  DateTime? @map("last_review")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word Word @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId, direction])
+  @@map("word_progress")
+}
+
+model StudySession {
+  id             String    @id @default(uuid())
+  userId         String    @map("user_id")
+  languagePairId String    @map("language_pair_id")
+  startedAt      DateTime  @default(now()) @map("started_at")
+  endedAt        DateTime? @map("ended_at")
+  cardsStudied   Int       @default(0) @map("cards_studied")
+  correctAnswers Int       @default(0) @map("correct_answers")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  languagePair LanguagePair @relation(fields: [languagePairId], references: [id], onDelete: Cascade)
+
+  @@map("study_sessions")
+}
+
+model DailyStats {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  date           DateTime @db.Date
+  cardsStudied   Int      @default(0) @map("cards_studied")
+  correctAnswers Int      @default(0) @map("correct_answers")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_stats")
+}
