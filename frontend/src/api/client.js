@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+// In Docker dev, Vite proxies /api → backend container (see vite.config.js).
+// VITE_API_URL can override this for non-Docker setups (e.g. bare Node).
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`,
+  baseURL: BASE_URL ? `${BASE_URL}/api` : '/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

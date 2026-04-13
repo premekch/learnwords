@@ -45,7 +45,8 @@ services:
       target: development
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://localhost:3001
+      # Vite proxy target – uses Docker internal network (service name "backend")
+      VITE_BACKEND_URL: http://backend:3001
     ports:
       - "5173:5173"
     volumes:

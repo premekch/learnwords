@@ -41,8 +41,27 @@ exports.register = [
       const passwordHash = await bcrypt.hash(password, 12);
       const user = await prisma.user.create({
         data: { email, passwordHash },
-        select: { id: true, email: true, createdAt: true },
+        select: { id: true, email: true, name: true, createdAt: true },
       });
+
+      // Create default Czech→English pair + starter words for every new user
+      try {
+        const defaultPair = await prisma.languagePair.create({
+          data: { userId: user.id, sourceLanguage: 'Čeština', targetLanguage: 'Angličtina' },
+        });
+        await prisma.word.createMany({
+          data: [
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'okno',     targetWord: 'window'  },
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'dveře',    targetWord: 'door'    },
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'podlaha',  targetWord: 'floor'   },
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'jít, jet', targetWord: 'to go'   },
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'matka',    targetWord: 'mother'  },
+            { userId: user.id, languagePairId: defaultPair.id, sourceWord: 'otec',     targetWord: 'father'  },
+          ],
+        });
+      } catch (seedErr) {
+        console.error('Could not seed default words:', seedErr.message);
+      }
 
       const token = signToken(user.id);
       res.status(201).json({ token, user });
@@ -73,7 +92,7 @@ exports.login = async (req, res, next) => {
     const token = signToken(user.id);
     res.json({
       token,
-      user: { id: user.id, email: user.email, createdAt: user.createdAt },
+      user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
     });
   } catch (error) {
     next(error);

@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
 
 const links = [
-  { to: '/dashboard', label: 'Přehled', icon: '🏠' },
+  { to: '/dashboard', label: 'Přehled',  icon: '🏠' },
   { to: '/words',     label: 'Slovíčka', icon: '📚' },
   { to: '/study',     label: 'Učení',    icon: '🎯' },
   { to: '/stats',     label: 'Stats',    icon: '📊' },
+  { to: '/profile',   label: 'Profil',   icon: '👤' },
 ];
 
 export default function BottomNav() {

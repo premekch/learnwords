@@ -10,6 +10,7 @@ const languageRoutes = require('./routes/languages');
 const wordRoutes = require('./routes/words');
 const studyRoutes = require('./routes/study');
 const statsRoutes = require('./routes/stats');
+const profileRoutes = require('./routes/profile');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/languages', languageRoutes);
 app.use('/api/words', wordRoutes);
 app.use('/api/study', studyRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.use(errorHandler);
 

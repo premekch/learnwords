@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { getStats } from '../api/stats';
-import { getActivity } from '../api/stats';
+import { getStats, getActivity } from '../api/stats';
 import { getLanguagePairs } from '../api/languages';
 import { useAuthStore } from '../store/authStore';
 import { useLanguageStore } from '../store/languageStore';
+import { displayLanguage } from '../constants/languages';
 import ActivityGraph from '../components/stats/ActivityGraph';
 
 function StatCard({ value, label, accent }) {
@@ -36,15 +36,20 @@ export default function DashboardPage() {
     return 'Dobrý večer';
   };
 
+  const displayName = user?.name || user?.email?.split('@')[0];
+
   return (
     <div className="page">
       <div className="container">
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
-          <h1>{greeting()}, {user?.email?.split('@')[0]}! 👋</h1>
+          <h1>{greeting()}, {displayName}! 👋</h1>
           {activePair && (
             <p style={{ marginTop: 4 }}>
-              Aktivní jazyk: <strong>{activePair.sourceLanguage} → {activePair.targetLanguage}</strong>
+              Aktivní jazyk:{' '}
+              <strong>
+                {displayLanguage(activePair.sourceLanguage)} → {displayLanguage(activePair.targetLanguage)}
+              </strong>
             </p>
           )}
         </div>
@@ -67,11 +72,7 @@ export default function DashboardPage() {
             <StatCard value={stats.totalWords} label="Celkem slov" />
             <StatCard value={stats.learnedWords} label="Naučeno" accent="var(--color-success)" />
             <StatCard value={stats.todayCardsStudied} label="Dnes procvičeno" accent="var(--color-primary)" />
-            <StatCard
-              value={`${stats.streak}🔥`}
-              label="Série dní"
-              accent="var(--yellow-600)"
-            />
+            <StatCard value={`${stats.streak}🔥`} label="Série dní" accent="var(--yellow-600)" />
           </div>
         )}
 
@@ -90,16 +91,37 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Activity graph */}
-        {activity && activity.length > 0 && (
+        {/* Activity – last 30 days */}
+        {activity && (
+          <div className="card" style={{ marginBottom: 16 }}>
+            <h3 style={{ marginBottom: 4 }}>Aktivita – posledních 30 dní</h3>
+            <p style={{ marginBottom: 14, fontSize: '0.8125rem' }}>
+              {activity.filter((d) => {
+                const daysAgo = (Date.now() - new Date(d.date).getTime()) / 86400000;
+                return daysAgo <= 30 && d.cardsStudied > 0;
+              }).length} aktivních dní
+            </p>
+            {activity.length > 0 ? (
+              <ActivityGraph data={activity} days={30} />
+            ) : (
+              <p className="text-sm text-muted">Zatím žádná aktivita.</p>
+            )}
+          </div>
+        )}
+
+        {/* Activity – last 90 days */}
+        {activity && (
           <div className="card">
-            <h3 style={{ marginBottom: 16 }}>Aktivita za posledních 90 dní</h3>
-            <ActivityGraph data={activity} />
+            <h3 style={{ marginBottom: 4 }}>Aktivita – posledních 90 dní</h3>
             {stats && (
-              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' }}>
-                <span className="text-sm text-muted">Celkem procvičeno: <strong>{stats.totalStudied}</strong> karet</span>
-                <span className="text-sm text-muted">Přesnost: <strong>{stats.accuracy}%</strong></span>
-              </div>
+              <p style={{ marginBottom: 14, fontSize: '0.8125rem' }}>
+                Celkem procvičeno: <strong>{stats.totalStudied}</strong> karet · Přesnost: <strong>{stats.accuracy}%</strong>
+              </p>
+            )}
+            {activity.length > 0 ? (
+              <ActivityGraph data={activity} days={90} />
+            ) : (
+              <p className="text-sm text-muted">Zatím žádná aktivita.</p>
             )}
           </div>
         )}

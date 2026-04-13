@@ -1,12 +1,14 @@
-FROM node:20-alpine AS development
+FROM node:20-slim AS development
 
 WORKDIR /app
 
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY package*.json ./
+COPY prisma ./prisma/
 RUN npm install
 
 COPY . .
-RUN npx prisma generate
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -16,20 +18,22 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]
 
 # ── Production ────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
 WORKDIR /app
 
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY package*.json ./
+COPY prisma ./prisma/
 RUN npm ci --only=production
 
 COPY . .
-RUN npx prisma generate
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs nodejs
 USER nodejs
 
 EXPOSE 3001

@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import WordsPage from './pages/WordsPage';
 import StudyPage from './pages/StudyPage';
 import StatsPage from './pages/StatsPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/words" element={<WordsPage />} />
             <Route path="/study" element={<StudyPage />} />
             <Route path="/stats" element={<StatsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
