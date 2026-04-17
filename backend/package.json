@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "node src/index.js",
     "build": "prisma generate",
-    "start": "prisma migrate deploy && node src/index.js",
+    "start": "prisma db push --skip-generate && node src/index.js",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
