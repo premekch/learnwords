@@ -17,7 +17,11 @@ export default function LoginPage() {
       setAuth(user, token);
       navigate('/dashboard');
     },
-    onError: (e) => toast.error(e.response?.data?.error || 'Chyba přihlášení'),
+    onError: (e) => toast.error(
+      e.response?.status === 401
+        ? 'Neexistující uživatel nebo špatné přihlašovací údaje.'
+        : 'Chyba přihlášení'
+    ),
   });
 
   const handleSubmit = (e) => {
